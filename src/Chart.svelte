@@ -17,7 +17,7 @@
   const yearEnd = 2021;
   let infosHeight = 0;
 
-  const tippingPoint = 0.75;
+  const tippingPoint = 0.6;
 
   const scrollScale = scaleLinear()
     .domain([0, tippingPoint])
@@ -25,7 +25,7 @@
     .clamp(true);
 
   const dezoomScale = scaleLinear()
-    .domain([tippingPoint, 1])
+    .domain([tippingPoint, 0.9])
     .range([yearEnd - offset, dezoomYearStart])
     .clamp(true);
 

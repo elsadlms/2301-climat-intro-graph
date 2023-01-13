@@ -4,11 +4,13 @@
   export let temperature;
   export let progression;
 
-  $: colorScaleToRed = interpolateRgb('#192A3F', '#762401')
-  $: colorScaleToBlack = interpolateRgb('#762401', '#010609')
+  $: colorScaleToRed = interpolateRgb('#192A3F', '#762401');
+  $: colorScaleToBlack = interpolateRgb('#762401', '#010609');
 
-  $: backgroundColor = progression > 0.9 ? colorScaleToBlack((progression - 0.9) * 10) : colorScaleToRed(Math.max(temperature, 0))
-  $: inlineStyle = `background-color: ${backgroundColor};`
+  $: backgroundColor = progression > 0.7 ? colorScaleToBlack((progression - 0.7) * 10) : colorScaleToRed(Math.max(temperature, 0));
+  $: opacity = progression < 0.9 ? 1 : 1 - ((progression - 0.9) * 10)
+
+  $: inlineStyle = `opacity: ${opacity}; background-color: ${backgroundColor};`;
 </script>
 
 <div style={inlineStyle} class="lm-climat-intro_background" />
