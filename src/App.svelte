@@ -1,13 +1,17 @@
 <script>
   import { csv } from 'd3-fetch';
-  import { afterUpdate } from 'svelte';
+  import { afterUpdate, onMount } from 'svelte';
 
   import Chart from './Chart.svelte';
 
-  export let pContext;
   export let context;
+  export let pContext;
 
-  let { progression, width, height } = context;
+  let { progression, width, height } = context
+
+  onMount(() => {
+    if (progression === null) progression = 0
+  });
 
   afterUpdate(() => {
     if (pContext && context.progression != pContext.progression) {
