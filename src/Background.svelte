@@ -4,8 +4,8 @@
   export let temperature;
   export let progression;
 
-  $: colorScaleToRed = interpolateRgb('#0E101B', '#6A0704')
-  $: colorScaleToBlack = interpolateRgb('#6A0704', '#010609')
+  $: colorScaleToRed = interpolateRgb('#192A3F', '#762401')
+  $: colorScaleToBlack = interpolateRgb('#762401', '#010609')
 
   $: backgroundColor = progression > 0.9 ? colorScaleToBlack((progression - 0.9) * 10) : colorScaleToRed(Math.max(temperature, 0))
   $: inlineStyle = `background-color: ${backgroundColor};`
