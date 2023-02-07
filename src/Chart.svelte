@@ -9,68 +9,60 @@
   export let data;
 
   const margin = 40;
-  const offset = 50;
-  const dezoomYearStart = 0;
-  const yearStart = 1800;
+  const yearStart = 1600;
   const yearEnd = 2021;
   let infosHeight = 0;
   let infosWidth = 0;
 
-  const tippingPoint = 0.6;
-
   const scrollScale = scaleLinear()
-    .domain([0, tippingPoint])
-    .range([yearStart, yearEnd - offset])
+    .domain([0, 1])
+    .range([yearStart, yearEnd])
     .clamp(true);
 
-  const dezoomScale = scaleLinear()
-    .domain([tippingPoint, 0.9])
-    .range([yearEnd - offset, dezoomYearStart])
-    .clamp(true);
+  $: currentYear = Math.round(scrollScale(progression));
 
-  $: timeStart =
-    progression > tippingPoint
-      ? dezoomScale(progression)
-      : scrollScale(progression);
-  $: timeEnd =
-    progression > tippingPoint ? yearEnd : Math.round(scrollScale(progression) + offset);
-
-  $: currentYear = timeEnd;
-
-  $: xScale = scaleTime().domain([timeStart, timeEnd]).range([0, width]);
+  $: xScale = scaleTime().domain([yearStart, yearEnd]).range([0, width]);
 
   $: yScale = scaleLinear()
     .domain(
       extent(data.rawEmissions, (d) => {
-        if (d.year > dezoomYearStart) {
+        if (d.year > yearStart) {
           return d.deseasonalized;
         }
       })
     )
-    .range([height - margin, 0]);
+    .range([height - margin * 2, margin/2]);
 
   $: lineGenerator = line()
     .x((d) => xScale(+d.year))
     .y((d) => yScale(+d.deseasonalized));
 
+  $: clipWidth = progression * width;
+
   $: chartInlineStyle = `width: ${width}px; height: ${height}px;`;
 
-  $: yearDot = currentYear - 5
-  $: dotPositionTop = yScale(data.emissionsByYear[yearDot]) - 14;
-  $: dotPositionLeft = xScale(yearDot) - 14;
+  $: dotPositionTop = yScale(data.emissionsByYear[currentYear]) - 14;
+  $: dotPositionLeft = xScale(currentYear) - 14;
 
-  $: valuePositionTop = yScale(data.emissionsByYear[yearDot]) - infosHeight;
-  $: valuePositionLeft = Math.min(xScale(yearDot) - infosWidth/2, width - 180);
-
-  $: console.log(infosWidth/2)
+  $: valuePositionTop = yScale(data.emissionsByYear[currentYear]) - infosHeight;
+  $: valuePositionLeft = Math.min(
+    xScale(currentYear) - infosWidth / 2,
+    width - 220
+  );
 
   $: dotStyle = `top: ${dotPositionTop}px; left: ${dotPositionLeft}px;`;
-  $: valueStyle = `top: ${valuePositionTop}px; left: ${valuePositionLeft}px;`;
+  $: valueStyle = `
+    top: ${valuePositionTop < 0 ? 12 : valuePositionTop}px; 
+    left: ${valuePositionLeft < 0 ? 12 : valuePositionLeft}px;
+  `;
 </script>
 
 <div style={chartInlineStyle} class="lm-climat-intro_chart">
   {#if width}
-    <svg {width} {height}>
+    <svg {width} {height} clip-path="url(#lm-clip-reveal)">
+      <clipPath id="lm-clip-reveal">
+        <rect width={clipWidth} {height} />
+      </clipPath>
       <path
         d={lineGenerator(data.rawEmissions)}
         stroke="#FF6933"
@@ -82,9 +74,7 @@
 
     {#if currentYear && data.emissionsByYear[currentYear]}
       <div class="lm-climat-intro_year">
-        <p>
-          {currentYear}
-        </p>
+        <p>{currentYear}</p>
       </div>
 
       <div

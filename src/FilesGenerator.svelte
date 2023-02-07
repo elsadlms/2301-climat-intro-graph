@@ -10,7 +10,7 @@
   const emissionsByYear = [];
   const temperatureByYear = [];
 
-  const yearStart = 1800;
+  const yearStart = 1500;
   const yearEnd = 2021;
 
   onMount(() => {
@@ -32,7 +32,7 @@
   });
 
   const exportFiles = () => {    
-    const temperatureFile = new Blob([temperatureByYearExport], { type: 'text/csv' });
+    const temperatureFile = new Blob([temperatureByYear], { type: 'text/csv' });
     saveAs(temperatureFile, 'temperatureByYear.csv');
 
     const emissionsFile = new Blob([emissionsByYear], { type: 'text/csv' });

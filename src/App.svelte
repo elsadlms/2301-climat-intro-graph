@@ -7,10 +7,10 @@
   export let context;
   export let pContext;
 
-  let { progression, width, height } = context
+  let { progression, width, height } = context;
 
   onMount(() => {
-    if (progression === null) progression = 0
+    if (progression === null) progression = 0;
   });
 
   afterUpdate(() => {
@@ -29,7 +29,6 @@
 
   let rawEmissions;
   let emissionsByYear;
-  let temperatureByYear;
 
   csv(
     'https://assets-decodeurs.lemonde.fr/redacweb/2301-scrollgngn-graph-intro/emissions.csv'
@@ -42,21 +41,15 @@
   ).then((data) => {
     emissionsByYear = data.columns;
   });
-
-  csv(
-    'https://assets-decodeurs.lemonde.fr/redacweb/2301-scrollgngn-graph-intro/temperatureByYear.csv'
-  ).then((data) => {
-    temperatureByYear = data.columns;
-  });
 </script>
 
 <div class="lm-climat-intro">
-  {#if rawEmissions && emissionsByYear && temperatureByYear}
+  {#if rawEmissions && emissionsByYear}
     <Chart
       {progression}
       {width}
       {height}
-      data={{ rawEmissions, emissionsByYear, temperatureByYear }}
+      data={{ rawEmissions, emissionsByYear }}
     />
   {/if}
 </div>
@@ -64,7 +57,7 @@
 <style global>
   .lm-climat-intro {
     font-family: 'Marr Sans';
-    height: 1000%;
+    height: 100%;
     width: 100%;
   }
 </style>
