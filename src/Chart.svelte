@@ -3,8 +3,6 @@
   import { extent } from 'd3-array';
   import { line } from 'd3-shape';
 
-  import Background from './Background.svelte';
-
   export let progression;
   export let width;
   export let height;
@@ -16,6 +14,7 @@
   const yearStart = 1800;
   const yearEnd = 2021;
   let infosHeight = 0;
+  let infosWidth = 0;
 
   const tippingPoint = 0.6;
 
@@ -34,9 +33,9 @@
       ? dezoomScale(progression)
       : scrollScale(progression);
   $: timeEnd =
-    progression > tippingPoint ? yearEnd : scrollScale(progression) + offset;
+    progression > tippingPoint ? yearEnd : Math.round(scrollScale(progression) + offset);
 
-  $: currentYear = Math.round(timeEnd);
+  $: currentYear = timeEnd;
 
   $: xScale = scaleTime().domain([timeStart, timeEnd]).range([0, width]);
 
@@ -56,78 +55,105 @@
 
   $: chartInlineStyle = `width: ${width}px; height: ${height}px;`;
 
-  $: infosPosition = Math.max(
-    yScale(data.emissionsByYear[currentYear]) - infosHeight,
-    12
-  );
-  $: infosInlineStyle = `top: ${infosPosition}px`;
+  $: yearDot = currentYear - 5
+  $: dotPositionTop = yScale(data.emissionsByYear[yearDot]) - 14;
+  $: dotPositionLeft = xScale(yearDot) - 14;
+
+  $: valuePositionTop = yScale(data.emissionsByYear[yearDot]) - infosHeight;
+  $: valuePositionLeft = Math.min(xScale(yearDot) - infosWidth/2, width - 180);
+
+  $: console.log(infosWidth/2)
+
+  $: dotStyle = `top: ${dotPositionTop}px; left: ${dotPositionLeft}px;`;
+  $: valueStyle = `top: ${valuePositionTop}px; left: ${valuePositionLeft}px;`;
 </script>
 
-<svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;500&display=swap"
-    rel="stylesheet"
-  />
-</svelte:head>
-
 <div style={chartInlineStyle} class="lm-climat-intro_chart">
-  <Background
-    {progression}
-    temperature={data.temperatureByYear[currentYear]}
-  />
-
   {#if width}
     <svg {width} {height}>
       <path
         d={lineGenerator(data.rawEmissions)}
-        stroke="white"
-        stroke-width={3}
+        stroke="#FF6933"
+        stroke-width={4}
         stroke-linecap="round"
         fill="none"
       />
     </svg>
 
     {#if currentYear && data.emissionsByYear[currentYear]}
+      <div class="lm-climat-intro_year">
+        <p>
+          {currentYear}
+        </p>
+      </div>
+
       <div
         bind:clientHeight={infosHeight}
-        style={infosInlineStyle}
-        class="lm-climat-intro_infos"
+        bind:clientWidth={infosWidth}
+        style={valueStyle}
+        class="lm-climat-intro_value"
       >
-        <p>{currentYear}</p>
-        <p>{data.emissionsByYear[currentYear]} ppm</p>
+        <p class="lm-climat-intro_value_label">Taux de concentration en CO2</p>
+        <p class="lm-climat-intro_value_number">
+          {data.emissionsByYear[currentYear]} ppm
+        </p>
       </div>
+      <div style={dotStyle} class="lm-climat-intro_value_dot" />
     {/if}
   {/if}
 </div>
 
 <style>
   .lm-climat-intro_chart {
-    position: fixed;
+    background: #000;
+    /* position: fixed; */
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
   }
 
-  .lm-climat-intro_infos {
-    font-family: 'Roboto Mono', 'Marr Sans';
+  .lm-climat-intro_year {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 33vw;
+    font-weight: 600;
+    position: absolute;
+    top: 0;
+    color: #fff;
+    opacity: 0.08;
+  }
+
+  .lm-climat-intro_value {
     color: #fff;
     position: absolute;
-    text-align: right;
-    top: 12px;
-    right: 12px;
+    text-align: center;
     font-weight: 500;
-    font-size: 14px;
-    padding-bottom: 12px;
+    margin-top: 12px;
+    padding-bottom: 36px;
+    line-height: 150%;
   }
 
-  .lm-climat-intro_infos p {
-    margin: 0;
+  .lm-climat-intro_value_label {
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    font-size: 10px;
+    opacity: 0.6;
   }
 
-  .lm-climat-intro_infos p + p {
-    font-weight: 300;
+  .lm-climat-intro_value_number {
+    font-size: 20px;
+  }
+
+  .lm-climat-intro_value_dot {
+    height: 28px;
+    width: 28px;
+    background-color: #ff6933;
+    display: inline-block;
+    border-radius: 28px;
+    position: absolute;
   }
 </style>
