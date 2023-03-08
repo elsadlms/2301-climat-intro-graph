@@ -14,12 +14,14 @@
   let infosHeight = 0;
   let infosWidth = 0;
 
-  const scrollScale = scaleLinear()
-    .domain([0, 1])
-    .range([yearStart, yearEnd])
-    .clamp(true);
+  // const scrollScale = scaleLinear()
+  //   .domain([0, 1])
+  //   .range([yearStart, yearEnd])
+  //   .clamp(true);
 
-  $: currentYear = Math.round(scrollScale(progression));
+  // $: currentYear = Math.round(scrollScale(progression));
+
+  const currentYear = yearStart
 
   $: xScale = scaleTime().domain([yearStart, yearEnd]).range([0, width]);
 
@@ -31,13 +33,15 @@
         }
       })
     )
-    .range([height - margin * 2, margin / 2]);
+    .range([height - margin * 2, margin/2]);
 
   $: lineGenerator = line()
     .x((d) => xScale(+d.year))
     .y((d) => yScale(+d.deseasonalized));
 
-  $: clipWidth = progression > 0 ? progression * width : 0;
+  // $: clipWidth = progression * width;
+
+  const clipWidth = 0
 
   $: chartInlineStyle = `width: ${width}px; height: ${height}px;`;
 
@@ -57,19 +61,10 @@
   `;
 </script>
 
-<svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap"
-    rel="stylesheet"
-  />
-</svelte:head>
-
 <div style={chartInlineStyle} class="lm-climat-intro_chart">
   {#if width}
-    <svg {width} {height} clip-path="url(#lm-clip-reveal)">
-      <clipPath id="lm-clip-reveal">
+    <svg {width} {height} clip-path="url(#lm-clip-reveal-static)">
+      <clipPath id="lm-clip-reveal-static">
         <rect width={clipWidth} {height} />
       </clipPath>
       <path
@@ -104,7 +99,7 @@
 
 <style>
   .lm-climat-intro_chart {
-    /* background: #000; */
+    background: #000;
     /* position: fixed; */
     top: 0;
     left: 0;
@@ -124,8 +119,6 @@
     top: 0;
     color: #fff;
     opacity: 0.08;
-    font-family: 'Roboto Mono';
-    user-select: none;
   }
 
   .lm-climat-intro_value {
@@ -136,10 +129,6 @@
     margin-top: 12px;
     padding-bottom: 36px;
     line-height: 150%;
-  }
-
-  .lm-climat-intro_value p {
-    margin: 0;
   }
 
   .lm-climat-intro_value_label {
