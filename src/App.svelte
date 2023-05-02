@@ -56,8 +56,10 @@
 
 <style global>
   .lm-climat-intro {
-    font-family: 'Marr Sans';
+    font-family: var(--ff-marr-sans, 'Marr Sans');
     height: 100%;
     width: 100%;
+    /* à suppr */
+    /* height: 300vh; */
   }
 </style>

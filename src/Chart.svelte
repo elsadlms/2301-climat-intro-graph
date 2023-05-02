@@ -9,19 +9,32 @@
   export let data;
 
   const margin = 40;
-  const yearStart = 1600;
+  const yearStart = 1840;
+  const yearStep = 1896;
   const yearEnd = 2021;
   let infosHeight = 0;
   let infosWidth = 0;
 
-  const scrollScale = scaleLinear()
-    .domain([0, 1])
-    .range([yearStart, yearEnd])
+  const scrollScale1 = scaleLinear()
+    .domain([0, 0.33])
+    .range([yearStart, yearStep])
     .clamp(true);
+  const scrollScale2 = scaleLinear()
+    .domain([0.33, 1])
+    .range([yearStep, yearEnd])
+    .clamp(true);
+  $: scrollScale = (progression) =>
+    progression < 0.33 ? scrollScale1(progression) : scrollScale2(progression);
 
   $: currentYear = Math.round(scrollScale(progression));
 
-  $: xScale = scaleTime().domain([yearStart, yearEnd]).range([0, width]);
+  const xScale1 = scaleTime()
+    .domain([yearStart, yearStep])
+    .range([0, width * 0.33]);
+  const xScale2 = scaleTime()
+    .domain([yearStep, yearEnd])
+    .range([width * 0.33, width]);
+  $: xScale = (year) => (year < yearStep ? xScale1(year) : xScale2(year));
 
   $: yScale = scaleLinear()
     .domain(
@@ -37,6 +50,8 @@
     .x((d) => xScale(+d.year))
     .y((d) => yScale(+d.deseasonalized));
 
+  $: formattedEmissions = Number(data.emissionsByYear[currentYear]).toFixed(1);
+
   $: clipWidth = progression > 0 ? progression * width : 0;
 
   $: chartInlineStyle = `width: ${width}px; height: ${height}px;`;
@@ -47,7 +62,7 @@
   $: valuePositionTop = yScale(data.emissionsByYear[currentYear]) - infosHeight;
   $: valuePositionLeft = Math.min(
     xScale(currentYear) - infosWidth / 2,
-    width - 220
+    width - 180
   );
 
   $: dotStyle = `top: ${dotPositionTop}px; left: ${dotPositionLeft}px;`;
@@ -92,9 +107,10 @@
         style={valueStyle}
         class="lm-climat-intro_value"
       >
-        <p class="lm-climat-intro_value_label">Taux de concentration en CO2</p>
+        <p class="lm-climat-intro_value_label">Concentration en CO2</p>
         <p class="lm-climat-intro_value_number">
-          {data.emissionsByYear[currentYear]} ppm
+          <span>{formattedEmissions}</span>
+          <span>parties<br />par million</span>
         </p>
       </div>
       <div style={dotStyle} class="lm-climat-intro_value_dot" />
@@ -104,12 +120,13 @@
 
 <style>
   .lm-climat-intro_chart {
-    /* background: #000; */
-    /* position: fixed; */
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
+    /* à suppr */
+    /* background: #000;
+    position: fixed; */
   }
 
   .lm-climat-intro_year {
@@ -150,7 +167,22 @@
   }
 
   .lm-climat-intro_value_number {
-    font-size: 20px;
+    font-size: 21px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .lm-climat-intro_value_number span {
+    display: block;
+  }
+
+  .lm-climat-intro_value_number span:nth-child(2) {
+    font-size: 9px;
+    line-height: 10px;
+    text-transform: uppercase;
+    text-align: left;
+    padding-left: 6px;
   }
 
   .lm-climat-intro_value_dot {
