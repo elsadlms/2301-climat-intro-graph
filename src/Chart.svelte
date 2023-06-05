@@ -15,11 +15,11 @@
   let infosHeight = 0;
   let infosWidth = 0;
 
-  const scrollScale1 = scaleLinear()
+  $: scrollScale1 = scaleLinear()
     .domain([0, 0.33])
     .range([yearStart, yearStep])
     .clamp(true);
-  const scrollScale2 = scaleLinear()
+  $: scrollScale2 = scaleLinear()
     .domain([0.33, 1])
     .range([yearStep, yearEnd])
     .clamp(true);
@@ -28,10 +28,10 @@
 
   $: currentYear = Math.round(scrollScale(progression));
 
-  const xScale1 = scaleTime()
+  $: xScale1 = scaleTime()
     .domain([yearStart, yearStep])
     .range([0, width * 0.33]);
-  const xScale2 = scaleTime()
+  $: xScale2 = scaleTime()
     .domain([yearStep, yearEnd])
     .range([width * 0.33, width]);
   $: xScale = (year) => (year < yearStep ? xScale1(year) : xScale2(year));
@@ -50,7 +50,7 @@
     .x((d) => xScale(+d.year))
     .y((d) => yScale(+d.deseasonalized));
 
-  $: formattedEmissions = Number(data.emissionsByYear[currentYear]).toFixed(1);
+  $: formattedEmissions = Number(data.emissionsByYear[currentYear]).toFixed(1).toString().replace('.', ',');
 
   $: clipWidth = progression > 0 ? progression * width : 0;
 
@@ -107,7 +107,7 @@
         style={valueStyle}
         class="lm-climat-intro_value"
       >
-        <p class="lm-climat-intro_value_label">Concentration en CO2</p>
+        <p class="lm-climat-intro_value_label">Concentration en CO<sub>2</sub></p>
         <p class="lm-climat-intro_value_number">
           <span>{formattedEmissions}</span>
           <span>parties<br />par million</span>
